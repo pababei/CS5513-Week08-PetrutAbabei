@@ -8,85 +8,86 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import useAuth from "../hooks/useAuth";
+import { useRouter } from "next/router";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { db } from "@/firebase/firebase-app";
 import { FaToggleOff, FaToggleOn, FaTrash } from "react-icons/fa";
-import { deleteTodo, toggleTodoStatus } from "../api/todo";
+import { deleteEvent, changeEventStatus } from "../api/event";
 
-const TodoList = () => {
-  const [todos, setTodos] = React.useState([]);
+const EventList = () => {
+  const [events, setEvents] = React.useState([]);
   const { user } = useAuth();
   const toast = useToast();
   const router = useRouter();
   const refreshData = () => {
     if (!user) {
-      setTodos([]);
+      setEvents([]);
       return;
     }
-    const q = query(collection(db, "todo"), where("user", "==", user.uid));
+    const q = query(collection(db, "event"), where("user", "==", user.uid));
     onSnapshot(q, (querySnapchot) => {
       let ar = [];
       querySnapchot.docs.forEach((doc) => {
         ar.push({ id: doc.id, ...doc.data() });
       });
       console.log(ar);
-      setTodos(ar);
+      setEvents(ar);
     });
   };
   useEffect(() => {
     refreshData();
   }, [user]);
 
-  const handleTodoDelete = async (id) => {
-    if (confirm("Are you sure you wanna delete this todo?")) {
-      deleteTodo(id);
-      toast({ title: "Todo deleted successfully", status: "success" });
+  const handleEventDelete = async (id) => {
+    if (confirm("Are you sure you wanna delete this event?")) {
+      deleteEvent(id);
+      toast({ title: "Event deleted successfully", status: "success" });
     }
   };
 
   const handleToggle = async (id, status) => {
-    const newStatus = status == "completed" ? "pending" : "completed";
-    await toggleTodoStatus({ docId: id, status: newStatus });
+    const newStatus = status == "completed" ? "planned" : "completed";
+    await changeEventStatus({ docId: id, status: newStatus });
     toast({
-      title: `Todo marked ${newStatus}`,
+      title: `Event marked ${newStatus}`,
       status: newStatus == "completed" ? "success" : "warning",
     });
   };
 
-  const handleTodoClick = (id) => {
-    router.push(`/todo/${id}`);
+  const handleEventClick = (id) => {
+    router.push(`/event/${id}`);
   };
 
   return (
     <Box mt={5}>
       {user && (
         <Box>
-          <Heading mb={4}>My to do list</Heading>
+          <Heading mb={4}>My event list</Heading>
           <Button
             onClick={() => {
-              router.push("/todo/add");
+              router.push("/event/add");
             }}
           >
-            Add To Do
+            Add Event
           </Button>
         </Box>
       )}
+
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
-        {todos &&
-          todos.map((todo) => (
+        {events &&
+          events.map((event) => (
             <Box
-              key={todo.id}
+              key={event.id}
               p={3}
               boxShadow="2xl"
               shadow={"dark-lg"}
               transition="0.2s"
               _hover={{ boxShadow: "sm" }}
-              onClick={() => handleTodoClick(todo.id)}
+              onClick={() => handleEventClick(event.id)}
             >
               <Heading as="h3" fontSize={"xl"}>
-                {todo.title}{" "}
+                {event.title}{" "}
                 <Badge
                   color="red.500"
                   bg="inherit"
@@ -97,12 +98,12 @@ const TodoList = () => {
                   }}
                   float="right"
                   size="xs"
-                  onClick={() => handleTodoDelete(todo.id)}
+                  onClick={() => handleEventDelete(event.id)}
                 >
                   <FaTrash />
                 </Badge>
                 <Badge
-                  color={todo.status == "pending" ? "gray.500" : "green.500"}
+                  color={event.status == "planned" ? "gray.500" : "green.500"}
                   bg="inherit"
                   transition={"0.2s"}
                   _hover={{
@@ -111,23 +112,26 @@ const TodoList = () => {
                   }}
                   float="right"
                   size="xs"
-                  onClick={() => handleToggle(todo.id, todo.status)}
+                  onClick={() => handleToggle(event.id, event.status)}
                 >
-                  {todo.status == "pending" ? <FaToggleOff /> : <FaToggleOn />}
+                  {event.status == "planned" ? <FaToggleOff /> : <FaToggleOn />}
                 </Badge>
                 <Badge
                   float="right"
                   opacity="0.8"
-                  bg={todo.status == "pending" ? "yellow.500" : "green.500"}
+                  bg={event.status == "planned" ? "yellow.500" : "green.500"}
                 >
-                  {todo.status}
+                  {event.status}
                 </Badge>
               </Heading>
-              <Text>{todo.description}</Text>
+              <Heading as="h4" fontSize={"l"}>
+                {event.date}
+              </Heading>
+              <Text>{event.description}</Text>
             </Box>
           ))}
       </SimpleGrid>
     </Box>
   );
 };
-export default TodoList;
+export default EventList;

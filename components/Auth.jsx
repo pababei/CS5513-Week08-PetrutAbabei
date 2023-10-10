@@ -1,13 +1,15 @@
 import React from "react";
-import { Box, Button, Link, Text, useColorMode } from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
+import { Box, Button, Icon, Link, Text, useColorMode } from "@chakra-ui/react";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { FaGoogle, FaMoon, FaSun } from "react-icons/fa";
+import { FaGoogle, FaHome, FaMoon, FaSun } from "react-icons/fa";
 import { auth } from "../firebase/firebase-app";
 import useAuth from "../hooks/useAuth";
 
 const Auth = () => {
   const { toggleColorMode, colorMode } = useColorMode();
   const { isLoggedIn, user } = useAuth();
+  const router = useRouter();
   const handleAuth = async () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
@@ -30,15 +32,23 @@ const Auth = () => {
         // ...
       });
   };
+  const handleSignout = () => {
+    router.push("/");
+    auth.signOut();
+  };
+
   return (
     <Box position={"fixed"} top="5%" right="5%">
+      <Link href="/">
+        {user ? <Button leftIcon={<FaHome />}>Home</Button> : ""}
+      </Link>
       <Button onClick={() => toggleColorMode()}>
         {colorMode == "dark" ? <FaSun /> : <FaMoon />}
       </Button>{" "}
       {isLoggedIn && (
         <>
           <Text color="green.500">{user.email}</Text>
-          <Link color="red.500" onClick={() => auth.signOut()}>
+          <Link color="red.500" onClick={() => handleSignout()}>
             Logout
           </Link>
         </>

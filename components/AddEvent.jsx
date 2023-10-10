@@ -1,8 +1,8 @@
 import React from "react";
 import {
   Box,
-  Input,
   Heading,
+  Input,
   Button,
   Textarea,
   Stack,
@@ -10,19 +10,21 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import useAuth from "../hooks/useAuth";
-import { addTodo } from "../api/todo";
+import { addEvent } from "../api/event";
 
-const AddTodo = () => {
+const AddEvent = () => {
+  const [date, setDate] = React.useState("");
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [status, setStatus] = React.useState("pending");
   const [isLoading, setIsLoading] = React.useState(false);
+
   const toast = useToast();
   const { isLoggedIn, user } = useAuth();
-  const handleTodoCreate = async () => {
+  const handleEventCreate = async () => {
     if (!isLoggedIn) {
       toast({
-        title: "You must be logged in to create a todo",
+        title: "You must be logged in to create an event",
         status: "error",
         duration: 9000,
         isClosable: true,
@@ -30,23 +32,31 @@ const AddTodo = () => {
       return;
     }
     setIsLoading(true);
-    const todo = {
+    const event = {
+      date,
       title,
       description,
       status,
       userId: user.uid,
     };
-    await addTodo(todo);
+    await addEvent(event);
     setIsLoading(false);
+    setDate("");
     setTitle("");
     setDescription("");
-    setStatus("pending");
-    toast({ title: "Todo created successfully", status: "success" });
+    setStatus("");
+    toast({ title: "Event created successfully", status: "success" });
   };
   return (
     <Box w="40%" margin={"0 auto"} display="block" mt={5}>
-      <Heading mb={4}>New To Do</Heading>
+      <Heading mb={4}>New Event</Heading>
       <Stack direction="column">
+        <Input
+          placeholder="Date"
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
         <Input
           placeholder="Title"
           value={title}
@@ -59,21 +69,32 @@ const AddTodo = () => {
         />
         <Select value={status} onChange={(e) => setStatus(e.target.value)}>
           <option
-            value={"pending"}
-            style={{ color: "yellow", fontWeight: "bold" }}
+            value={"planned"}
+            style={{ color: "blue", fontWeight: "bold" }}
           >
-            Pending ⌛
+            Planned
           </option>
           <option
             value={"completed"}
             style={{ color: "green", fontWeight: "bold" }}
           >
-            Completed ✅
+            Completed
+          </option>
+          <option
+            value={"canceled"}
+            style={{ color: "gray", fontWeight: "bold" }}
+          >
+            Canceled
           </option>
         </Select>
         <Button
-          onClick={() => handleTodoCreate()}
-          disabled={title.length < 1 || description.length < 1 || isLoading}
+          onClick={() => handleEventCreate()}
+          disabled={
+            date.length < 1 ||
+            title.length < 1 ||
+            description.length < 1 ||
+            isLoading
+          }
           variantColor="teal"
           variant="solid"
         >
@@ -84,4 +105,4 @@ const AddTodo = () => {
   );
 };
 
-export default AddTodo;
+export default AddEvent;
