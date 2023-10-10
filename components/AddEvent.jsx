@@ -16,7 +16,7 @@ const AddEvent = () => {
   const [date, setDate] = React.useState("");
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [status, setStatus] = React.useState("pending");
+  const [status, setStatus] = React.useState("planned");
   const [isLoading, setIsLoading] = React.useState(false);
 
   const toast = useToast();

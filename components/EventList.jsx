@@ -2,8 +2,10 @@ import {
   Badge,
   Box,
   Button,
+  Flex,
   Heading,
   SimpleGrid,
+  Spacer,
   Text,
   useToast,
 } from "@chakra-ui/react";
@@ -65,6 +67,9 @@ const EventList = () => {
         <Box>
           <Heading mb={4}>My event list</Heading>
           <Button
+            mb={3}
+            colorScheme="teal"
+            variant="outline"
             onClick={() => {
               router.push("/event/add");
             }}
@@ -84,50 +89,60 @@ const EventList = () => {
               shadow={"dark-lg"}
               transition="0.2s"
               _hover={{ boxShadow: "sm" }}
-              onClick={() => handleEventClick(event.id)}
             >
-              <Heading as="h3" fontSize={"xl"}>
-                {event.title}{" "}
-                <Badge
-                  color="red.500"
-                  bg="inherit"
-                  transition={"0.2s"}
-                  _hover={{
-                    bg: "inherit",
-                    transform: "scale(1.2)",
-                  }}
-                  float="right"
-                  size="xs"
-                  onClick={() => handleEventDelete(event.id)}
-                >
-                  <FaTrash />
-                </Badge>
-                <Badge
-                  color={event.status == "planned" ? "gray.500" : "green.500"}
-                  bg="inherit"
-                  transition={"0.2s"}
-                  _hover={{
-                    bg: "inherit",
-                    transform: "scale(1.2)",
-                  }}
-                  float="right"
-                  size="xs"
-                  onClick={() => handleToggle(event.id, event.status)}
-                >
-                  {event.status == "planned" ? <FaToggleOff /> : <FaToggleOn />}
-                </Badge>
-                <Badge
-                  float="right"
-                  opacity="0.8"
-                  bg={event.status == "planned" ? "yellow.500" : "green.500"}
-                >
-                  {event.status}
-                </Badge>
-              </Heading>
-              <Heading as="h4" fontSize={"l"}>
-                {event.date}
-              </Heading>
-              <Text>{event.description}</Text>
+              <Flex>
+                <Box onClick={() => handleEventClick(event.id)}>
+                  <Heading as="h3" fontSize={"xl"}>
+                    {event.title}{" "}
+                  </Heading>
+                  <Heading as="h4" fontSize={"l"}>
+                    {event.date}
+                  </Heading>
+                  <Text>{event.description}</Text>
+                </Box>
+                <Spacer />
+                <Box>
+                  <Badge
+                    color="red.500"
+                    bg="inherit"
+                    transition={"0.2s"}
+                    _hover={{
+                      bg: "inherit",
+                      transform: "scale(1.2)",
+                    }}
+                    float="right"
+                    size="xs"
+                    onClick={() => handleEventDelete(event.id)}
+                  >
+                    <FaTrash />
+                  </Badge>
+                  <Badge
+                    color={event.status == "planned" ? "gray.500" : "green.500"}
+                    bg="inherit"
+                    transition={"0.2s"}
+                    _hover={{
+                      bg: "inherit",
+                      transform: "scale(1.2)",
+                    }}
+                    float="right"
+                    size="xs"
+                    onClick={() => handleToggle(event.id, event.status)}
+                  >
+                    {event.status == "planned" ? (
+                      <FaToggleOff />
+                    ) : (
+                      <FaToggleOn />
+                    )}
+                  </Badge>
+                  <Badge
+                    float="right"
+                    opacity="0.8"
+                    bg={event.status == "planned" ? "yellow.500" : "green.500"}
+                  >
+                    {event.status}
+                  </Badge>
+                </Box>
+              </Flex>
             </Box>
           ))}
       </SimpleGrid>
